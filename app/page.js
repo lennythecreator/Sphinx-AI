@@ -10,7 +10,7 @@ export default function Component() {
           
           <span className=" flex gap-2 items-center ml-2 text-2xl font-bold text-primary sm:flex-row"> <Image src='/lion_head_silhouette_ByzJz.svg'
           height={30} width={30} alt="lion head silhouette"
-          /> Spinx-AI</span>
+          /> Sphinx-AI</span>
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-6">
           <Link className="text-sm font-medium hover:underline underline-offset-4" href="#features">
