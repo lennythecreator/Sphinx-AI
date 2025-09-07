@@ -131,11 +131,16 @@ export default function Page() {
                 ) : (
                   <>
                     {/* <FontAwesomeIcon icon={faRobot} className='mr-2' /> */}
-                    <div className='flex mb-2'>
-                      <Image src='/lion_head_silhouette_ByzJz.svg'
-            height={25} width={25} alt="lion head silhouette"
-            className='mr-2 mb-auto'/>
-                      <span className='mx-2'>{m.content}</span>
+                    
+                    <div className='flex flex-col mb-2'>
+                      <span className='flex items-center py-2'>
+                          <Image src='/lion_head_silhouette_ByzJz.svg'
+                        height={25} width={25} alt="lion head silhouette"
+                        className='mr-2 mb-auto'/>
+                        <p className='font-medium text-lg'>Sphinx</p>
+                      </span>
+                      
+                      <span className='mx-2'> {m.content}</span>
                     </div>
                     
                     {m.toolInvocations && m.toolInvocations[0] && m.toolInvocations[0].result && (
