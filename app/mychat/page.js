@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useChat } from 'ai/react';
 import { useState,useRef } from 'react';
+import {motion} from 'motion/react'
 import JobCard from '@/components/ui/JobCard';
 import axios from 'axios'; // Import axios for making HTTP requests
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -115,9 +116,13 @@ export default function Page() {
             </ul>
           </nav>
         </header>
-        <div className='flex flex-col h-full w-[90vw] sm:w-[70vw] overflow-y-auto mx-auto'>
+        <div className='flex flex-col h-full w-3xl overflow-y-auto mx-auto'>
           {messages.map(m => (
-              <div key={m.id} className={`whitespace-pre-wrap my-2 shadow-sm border ${m.role === 'user' ? 'bg-white-100' : 'bg-slate-200'} rounded-xl p-4`}>
+              <motion.div
+              initial={{ opacity: 0 , scale: 0.5}}
+              animate={{ opacity: 1 , scale: 1}}
+              transition={{ duration: 0.5 }}
+              key={m.id} className={`whitespace-pre-wrap my-2 shadow-md border ${m.role === 'user' ? 'bg-gradient-to-r from-[#efeadb] to-[#efe8d5]' : 'bg-gradient-to-r from-slate-200 via-slate-100 to-slate-300'} rounded-2xl p-6`}>
                 {m.role === 'user' ? (
                   <>
                     <FontAwesomeIcon icon={faUser} className='mr-2' />
@@ -139,7 +144,7 @@ export default function Page() {
                             <span>{m.toolInvocations[0].result.message}</span> // Display job description
                           )} */}
                           {m.toolInvocations[0].result?.job && (
-                            <Card className='my-4'>
+                            <Card className='my-4 bg-transparent'>
                               <CardHeader>
                                 <div className='flex items-center gap-2'>
                                   <LucideBriefcaseBusiness size={30} className=' border rounded-full p-1'/>
@@ -178,7 +183,7 @@ export default function Page() {
                             //   <p className='py-2'>{m.toolInvocations[0].result.source}</p>
                             //   <span>{m.toolInvocations[0].result.message}</span>
                             // </div>
-                            <Card className='my-2'>
+                            <Card className='my-2 bg-transparent p-0'>
                               <CardHeader>
                                 <div className='flex items-center gap-2'>
                                   <LucideBriefcaseBusiness size={30} className=' border rounded-full p-1'/>
@@ -202,8 +207,8 @@ export default function Page() {
                             </a>
                           )} */}
                           {m.toolInvocations[0].result?.bookTitle && (
-                            <Card>
-                              <CardHeader>
+                            <Card className=' bg-transparent p-0 border-transparent shadow-none'>
+                              <CardHeader className='p-0 pb-4 '>
                                 <div className='flex items-center gap-4'>
                                 {m.toolInvocations[0].result.bookThumbnail && (
                                     <Image
@@ -215,13 +220,13 @@ export default function Page() {
                                   )}
                                    <div>
                                   <CardTitle>{m.toolInvocations[0].result.bookTitle}</CardTitle>
-                                  <CardDescription>{m.toolInvocations[0].result.authors.join(', ')}</CardDescription>
+                                  <CardDescription className='p-0'>{m.toolInvocations[0].result.authors.join(', ')}</CardDescription>
                                 </div>
                                 </div>
                                
                                 
                               </CardHeader>
-                              <CardContent>
+                              <CardContent className='p-0'>
                                 <p>{m.toolInvocations[0].result.ai_res}</p>
                                 <Accordion type="single" collapsible className='my-3'>
                                 <AccordionItem value='item-1'>
@@ -242,14 +247,14 @@ export default function Page() {
                         {m.toolInvocations[0].result.videoId && (
                           <>
                             
-                            <Card className='w-full sm:w-[550px] my-4'>
-                              <CardHeader>
-                                <CardTitle>{m.toolInvocations[0].result.title}</CardTitle>
+                            <Card className='w-full sm:w-[550px] my-4 bg-transparent p-0 border-transparent shadow-none'>
+                              <CardHeader className='p-0 pb-4'>
+                                <CardTitle className='text-xl'>{m.toolInvocations[0].result.title}</CardTitle>
                                 <CardDescription>Found a video!</CardDescription>
                               </CardHeader>
-                              <CardContent>
+                              <CardContent className='p-0' >
                                 <iframe
-                                className='w-full rounded-lg'
+                                className='w-2xl rounded-lg'
                                 height="315"
                                 src={`https://www.youtube.com/embed/${m.toolInvocations[0].result.videoId}`}
                                 title="YouTube Video"
@@ -272,7 +277,7 @@ export default function Page() {
                     <Button variant="outline" size="icon" className='ml-auto' onClick={() => handleDelete(m.id)}><FontAwesomeIcon icon={faClose} className='h-4 w-4' /></Button>
                   </>
                 )}
-              </div>
+              </motion.div>
             ))}
             {isLoading && (
               <Button variant="desturctive" onClick={() => stop()} className='bg-red-600 w-24 text-white mx-auto'>
@@ -284,7 +289,7 @@ export default function Page() {
               </Button>
             )} 
         </div>
-        <form  onSubmit={handleFormSubmit} className=' flex  p-3 w-[90vw] sm:w-80vw mx-auto h-24 bg-muted items-center border rounded-t-xl sm:w-[60vw] gap-4'>
+        <form  onSubmit={handleFormSubmit} className=' flex mb-3 p-5 w-3xl  mx-auto h-24 bg-muted items-center border rounded-xl  gap-4'>
         <input
           type="file"
           onChange={handleFileChange}
@@ -294,7 +299,7 @@ export default function Page() {
           id='imgInput'
         />
       
-        <div className="relative flex items-center w-full">
+        <div className="relative flex items-center w-2xl">
           <label className='flex items-center' htmlFor='imgInput'><FontAwesomeIcon icon={faPlus} className="absolute left-2 text-gray-500 w-4 h-4" /></label>
           <input
             className=" flex items-center my-auto h-11 mx-auto w-full p-1 border border-gray-300 rounded shadow-xl outline-none pl-10"
