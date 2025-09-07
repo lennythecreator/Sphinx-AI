@@ -9,7 +9,7 @@ import JobCard from '@/components/ui/JobCard';
 import axios from 'axios'; // Import axios for making HTTP requests
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClose, faPaperPlane, faRobot, faUser,faPlus } from '@fortawesome/free-solid-svg-icons';
-import {ToolInvocation} from 'ai';
+
 import Link from 'next/link';
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
