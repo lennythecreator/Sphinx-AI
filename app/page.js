@@ -1,8 +1,18 @@
+"use client"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { MessageCircle, Rocket, Compass, Users } from "lucide-react"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 export default function Component() {
+  const [agentsData, setAgentsData] = useState([]);
+  useEffect(()=>{
+    fetch('api/get-agents')
+    .then(res => res.json())
+    .then(data => setAgentsData(data))
+
+    console.log(agentsData)
+  },[])
   return (
     <div className="flex flex-col min-h-screen">
       <header className="px-4 lg:px-6 h-14 flex items-center">

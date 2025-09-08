@@ -1,9 +1,22 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    images: {
-        domains: ['books.google.com'], // Add the domain here
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'books.google.com',
+        port: '',
+        pathname: '/**',
       },
-      webpack: (config) => {
+      {
+        protocol: 'https',
+        hostname: 'localhost',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
+  webpack: (config) => {
     config.module.rules.push({
       test: /canvas\.node$/,
       use: 'file-loader',

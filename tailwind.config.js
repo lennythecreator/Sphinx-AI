@@ -8,7 +8,12 @@ module.exports = {
   ],
   theme: {
   	extend: {
+	    fontSize:{
+			'Title': '1.25rem',
+			'Subtitle': '1.15rem',
+		},
 		width:{
+			'md': '28rem',
 			'lg': '32rem', // or any value you want
 			'xl': '36rem',
 			'2xl': '42rem',
