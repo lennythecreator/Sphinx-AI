@@ -30,7 +30,7 @@
     "mongoose": "^8.18.0",
     "motion": "^12.23.12",
     "next": "^14.2.12",
-    "next-auth": "^4.24.11",
+    "next-auth": "^5.0.0-beta.29",
     "nodemailer": "^6.10.1",
     "react": "^18",
     "react-dom": "^18",
