@@ -1,48 +1,44 @@
-import { streamUI } from 'ai/rsc';
 import { openai } from '@ai-sdk/openai';
 import { streamText, convertToCoreMessages } from 'ai';
-import { tool } from 'ai';
 import { z } from 'zod';
 
 const { getJson } = require("serpapi");
 
+const SERP_API_KEY = process.env.SERP_API_KEY || process.env.NEXT_PUBLIC_SERP_API_KEY;
+const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY || process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
+const BOOKS_API_KEY = process.env.BOOKS_API_KEY || process.env.NEXT_PUBLIC_BOOKS_API_KEY || YOUTUBE_API_KEY;
+
 //grab job data from the api
 const getJobData = async (job) => {
-  const apiKey = process.env.NEXT_PUBLIC_SERP_API_KEY;
-  if (!apiKey) {
-    throw new Error('API key is not available');
+  if (!SERP_API_KEY) {
+    throw new Error('SERP API key is not available');
   }
   return new Promise((resolve, reject) => {
     getJson({
       engine: "google_jobs",
       q: job,
       hl: "en",
-      api_key: apiKey,
+      api_key: SERP_API_KEY,
     }, (json) => {
       if (json.error) {
         reject(json.error);
       } else {
         const jobResults = json["jobs_results"];
-        if (jobResults && jobResults.length > 0) {
-          resolve(jobResults[0]); // Return only the first result
-        } else {
-          resolve(null); // No jobs found
-        }
+        resolve(Array.isArray(jobResults) ? jobResults : []);
       }
     });
   });
 };
 
 const getJobId = async (job) => {
-  const apiKey = process.env.NEXT_PUBLIC_SERP_API_KEY;
-  if (!apiKey) {
-    throw new Error('API key is not available');
+  if (!SERP_API_KEY) {
+    throw new Error('SERP API key is not available');
   } return new Promise((resolve, reject) => {
     getJson({
       engine: "google_jobs",
       q: job,
       hl: "en",
-      api_key: apiKey,
+      api_key: SERP_API_KEY,
     }, (json) => {
       if (json.error) {
         reject(json.error);
@@ -58,13 +54,14 @@ const getJobId = async (job) => {
   });
 }
 const getYearlySalary = async (jobId) => {
-  const apiKey = process.env.NEXT_PUBLIC_SERP_API_KEY;
-
+  if (!SERP_API_KEY) {
+    throw new Error('SERP API key is not available');
+  }
   return new Promise((resolve, reject) => {
     getJson({
       engine: "google_jobs_listing",
-      q: jobId,
-      api_key: apiKey,
+      job_id: jobId,
+      api_key: SERP_API_KEY,
     }, (json) => {
       if (json.error) {
         console.error(`Error fetching salary data: ${json.error}`);
@@ -86,44 +83,53 @@ const getYearlySalary = async (jobId) => {
 
 //search for company data
 const getBooks = async (book) => {
-  const Api_key = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
+  const apiKey = BOOKS_API_KEY;
+  if (!apiKey) {
+    console.error('Books API key is not available');
+    return null;
+  }
   const query = book;
   const maxResults = 1;
-  const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=${maxResults}&key=${Api_key}`
+  const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=${maxResults}&key=${apiKey}`
   try {
     const response = await fetch(url);
+    if (!response.ok) {
+      console.error(`Books API error: ${response.status} ${response.statusText}`);
+      return null;
+    }
     const data = await response.json();
     const books = data.items ? data.items[0] : null;
-    console.log('response : ', books)
     return books; // Return the first book
   } catch (error) {
     console.error('failed', error)
+    return null;
   }
 }
 
 //Allow for video search
 const getVideo = async (video) => {
-  const Api_key = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
+  const apiKey = YOUTUBE_API_KEY;
+  if (!apiKey) {
+    console.error('YouTube API key is not available');
+    return null;
+  }
   const query = video;
   const maxResults = 1;
-  console.log('starting');
-  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=${maxResults}&key=${Api_key}`;
+  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=${maxResults}&key=${apiKey}`;
   try {
     const response = await fetch(url);
+    if (!response.ok) {
+      console.error(`YouTube API error: ${response.status} ${response.statusText}`);
+      return null;
+    }
     const data = await response.json();
     const videos = data.items;
 
     // Check if the response contains video data
-    console.log('API response:', data);
-
     if (videos && videos.length > 0) {
       const videoData = videos[0];
-      console.log(`Title: ${videoData.snippet.title}`);
-      console.log(`Video ID: ${videoData.id.videoId}`);
-      console.log(`Thumbnail: ${videoData.snippet.thumbnails.default.url}`);
       return videoData;
     } else {
-      console.log('no video data found')
       return null
     }
   } catch (error) {
@@ -145,35 +151,49 @@ export async function POST(req) {
       system: system || 'You are a conversational AI assistant Spinx, meant to help students navigate their careers and majors. You can answer questions about majors, careers, and the job market. You can also provide advice on how to succeed in college and the workforce. Another one of your features is the ability to generate a road map showing users the skills and tools they need to learn for a particualr career. Do not answer anything unrelated to these topics. Don\'t give super lenghty responses, keep it short and sweet. avoid using \'*\' in your responses. You also have the ablitiy to rate the persons resume if they upload it. Also if they searched for a job then rate their result me based on the desscription.Score the resume based on keyword matching, relevant experience, education, and certifications, while considering achievements, clarity, and ATS compatibility. Focus on how well the resume aligns with the job description, ensuring the use of quantifiable results, proper formatting, and tailored content for the role. example: Rating{example/100} with a short explanation.',
       temperature: 0.8,
       tools: {
-        askForConfirmation: {
-          description: 'Ask the user for confirmation.',
-          parameters: z.object({
-            message: z.string().describe('The message to ask for confirmation.'),
-          }),
-        },
         searchJob: {
-          description: 'Search for jobs based on a query and give information about the title, location and summarize to 2 sentences job description.',
+          description: 'Search for jobs based on a query and return multiple results with title, location, and a short description.',
           parameters: z.object({
             job: z.string().describe('The job title or keywords to search for.'),
           }),
           execute: async ({ job }) => {
             console.log(`Searching for job: ${job}`);
             try {
-              const jobData = await getJobData(job);
-              if (jobData) {
+              const jobResults = await getJobData(job);
+              const jobs = Array.isArray(jobResults)
+                ? jobResults.slice(0, 8).map((jobItem) => {
+                  const applyLink = jobItem.apply_options?.[0]?.link
+                    || jobItem.related_links?.[0]?.link
+                    || jobItem.share_link
+                    || '';
+                  const qualifications = jobItem.job_highlights?.[0]?.items ?? [];
+                  return {
+                    id: jobItem.job_id || `${jobItem.company_name || 'company'}-${jobItem.title || 'role'}-${jobItem.location || 'location'}`,
+                    title: jobItem.title || job,
+                    description: jobItem.description || '',
+                    company: jobItem.company_name || '',
+                    location: jobItem.location || '',
+                    qualifications: Array.isArray(qualifications) ? qualifications : [qualifications],
+                    link: applyLink,
+                    thumbnail: jobItem.thumbnail || ''
+                  };
+                })
+                : [];
+
+              if (jobs.length === 0) {
                 return {
-                  title: `Job found ${jobData.title} at ${jobData.location}`,
-                  link: jobData.apply_options[0].link,
-                  job: `${jobData.title}`,
-                  jobDescription: `${jobData.description}`,
-                  company: `${jobData.company_name}`,
-                  location: `${jobData.location}`,
-                  qualifications: `${jobData.job_highlights[0].items}`,
-                  thumbnail: `${jobData.thumbnail}`
+                  query: job,
+                  count: 0,
+                  jobs: [],
+                  message: 'No jobs found',
                 };
-              } else {
-                return { message: 'No jobs found' };
               }
+
+              return {
+                query: job,
+                count: jobs.length,
+                jobs,
+              };
             } catch (error) {
               console.error(`Error fetching job data: ${error}`);
               throw new Error('Failed to fetch job data');
@@ -191,16 +211,18 @@ export async function POST(req) {
               if (jobId) {
                 const salaryData = await getYearlySalary(jobId);
                 if (salaryData) {
+                  const salaryFrom = salaryData.salary_from ?? 'N/A';
+                  const salaryTo = salaryData.salary_to ?? 'N/A';
                   return {
                     title: job,
-                    source: salaryData.source,
-                    message: `The average salary for ${job} is $${salaryData.salary_from} to $${salaryData.salary_to} based on ${salaryData.source} \n`,
+                    source: salaryData.source || 'Unknown',
+                    message: `The average salary for ${job} is $${salaryFrom} to $${salaryTo} based on ${salaryData.source || 'Unknown'} \n`,
                   };
                 } else {
-                  return { message: 'No salary data found' };
+                  return { message: 'No salary data found', source: 'Unknown' };
                 }
               } else {
-                return { message: 'No job ID found for the given job query' };
+                return { message: 'No job ID found for the given job query', source: 'Unknown' };
               }
             } catch (error) {
               console.error(`Error fetching salary data: ${error}`);
@@ -214,7 +236,6 @@ export async function POST(req) {
             video: z.string().describe('The video title or keywords to search for.'),
           }),
           execute: async ({ video }) => {
-            console.log('starting search', video);
             const videoData = await getVideo(video)
             if (videoData) {
               return {
@@ -233,8 +254,17 @@ export async function POST(req) {
             book: z.string().describe('The book name or keywords to search for.'),
           }),
           execute: async ({ book }) => {
-            console.log('searching for book on', book)
             const bookItem = await getBooks(book);
+            if (!bookItem) {
+              return {
+                ai_res: 'I could not find a matching book.',
+                bookTitle: 'No book found',
+                authors: [],
+                bookDescription: 'No description available.',
+                bookThumbnail: '',
+                bookLink: '',
+              };
+            }
             return {
               ai_res: `I think this would be a good read!`,
               bookTitle: bookItem.volumeInfo.title,

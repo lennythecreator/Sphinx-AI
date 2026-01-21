@@ -4,6 +4,7 @@ import Image from "next/image"
 import { MessageCircle, Compass, Users } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 
 const fadeInUp = {
@@ -26,6 +27,7 @@ const fallbackTestimonials = [
 ];
 
 export default function Component() {
+  const router = useRouter()
   const [agentsData, setAgentsData] = useState([]);
   useEffect(() => {
     fetch('api/get-agents')
@@ -33,6 +35,18 @@ export default function Component() {
       .then(data => setAgentsData(Array.isArray(data) ? data : []))
       .catch(() => setAgentsData([]));
   }, [])
+
+  const handleGetStarted = (event) => {
+    event.preventDefault()
+    const token = typeof window !== "undefined"
+      ? localStorage.getItem("authToken")
+      : null
+    if (token) {
+      router.push("/pages/new")
+    } else {
+      router.push("/pages/auth")
+    }
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-teal-50 via-blue-50 to-white">
@@ -99,8 +113,12 @@ export default function Component() {
                     whileHover={{ scale: 1.05, boxShadow: "0 4px 20px rgba(0,0,0,0.15)" }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Button className="bg-white text-teal-700 font-bold rounded-full px-6 py-3 shadow-lg hover:bg-blue-50 transition" type="submit">
-                      <Link href="/pages/new">Get Started</Link>
+                    <Button
+                      className="bg-white text-teal-700 font-bold rounded-full px-6 py-3 shadow-lg hover:bg-blue-50 transition"
+                      type="button"
+                      onClick={handleGetStarted}
+                    >
+                      Get Started
                     </Button>
                   </motion.div>
                 </form>
@@ -255,8 +273,12 @@ export default function Component() {
                     whileHover={{ scale: 1.05, boxShadow: "0 4px 20px rgba(0,0,0,0.15)" }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Button className="bg-white text-teal-700 font-bold rounded-full px-6 py-3 shadow-lg hover:bg-blue-50 transition" type="submit">
-                      <Link href="/pages/new">Get Started</Link>
+                    <Button
+                      className="bg-white text-teal-700 font-bold rounded-full px-6 py-3 shadow-lg hover:bg-blue-50 transition"
+                      type="button"
+                      onClick={handleGetStarted}
+                    >
+                      Get Started
                     </Button>
                   </motion.div>
                 </form>

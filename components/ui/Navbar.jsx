@@ -19,7 +19,8 @@ export default function Navbar() {
         <nav className='ml-auto'>
           <ul className='flex flex-row gap-4'>
             <li><Link href="/">Home</Link></li>
-            <li><Link href="/Chat">Chat</Link></li>
+            <li><Link href="/pages/new">Chat</Link></li>
+            <li><Link href="/pages/projects">Projects</Link></li>
             <li><Link href="/about">Leave a review!</Link></li>
           </ul>
         </nav>

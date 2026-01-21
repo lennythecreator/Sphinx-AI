@@ -8,7 +8,7 @@ const getJobData = async (job) => {
         engine: "google_jobs",
         q: job,
         hl: "en",
-        api_key: "82a7c06e9d00810bdf8bf10f355f8788378b958eae5ce1fb476d4a1725478970"
+        api_key: process.env.SERP_API_KEY,  
       }, (json) => {
         if (json.error) {
           reject(json.error);

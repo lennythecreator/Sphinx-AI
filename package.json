@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:migrate": "node scripts/migrate.mjs"
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.54",
@@ -20,11 +21,13 @@
     "@react-pdf-viewer/core": "^3.8.0",
     "ai": "^3.3.26",
     "axios": "^1.7.7",
+    "bcryptjs": "^3.0.3",
     "canvas": "^3.2.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "file-loader": "^6.2.0",
     "font-awesome": "^4.7.0",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.438.0",
     "mongodb": "^6.19.0",
     "mongoose": "^8.18.0",
@@ -34,6 +37,8 @@
     "nodemailer": "^6.10.1",
     "react": "^18",
     "react-dom": "^18",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "serpapi": "^2.1.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",

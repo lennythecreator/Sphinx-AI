@@ -1,5 +1,5 @@
 "use client"
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react'
 
 const ChatContext = createContext()
 
@@ -44,21 +44,23 @@ export function ChatProvider({ children }) {
         }
     }, [chatHistory, isLoaded])
 
-    const saveMessages = (advisorId, messages) => {
+    const saveMessages = useCallback((advisorId, messages) => {
         setChatHistory(prev => ({
             ...prev,
             [advisorId]: messages
         }))
-    }
+    }, [])
+
+    const contextValue = useMemo(() => ({
+        activeAdvisor,
+        setActiveAdvisor,
+        chatHistory,
+        saveMessages,
+        isLoaded
+    }), [activeAdvisor, chatHistory, saveMessages, isLoaded, setActiveAdvisor])
 
     return (
-        <ChatContext.Provider value={{
-            activeAdvisor,
-            setActiveAdvisor,
-            chatHistory,
-            saveMessages,
-            isLoaded
-        }}>
+        <ChatContext.Provider value={contextValue}>
             {children}
         </ChatContext.Provider>
     )
